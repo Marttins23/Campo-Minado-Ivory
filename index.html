@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <script src="js/campo-minado.js"></script>
+        <script src="js/casa.js"></script>
+        <script src="js/ajudantes.js"></script>
+    </head>
+    <body>
+        <div id="exibir-execucao"></div>
+
+        <script>
+            //Para executar, basta iniciar o servidor - eu testei utilizando o 'Live-Server' do VScode.
+
+            var campoMinado = new CampoMinado();
+
+            document.getElementById('exibir-execucao').innerHTML += '----------- Início do jogo -----------';
+            document.getElementById('exibir-execucao').innerHTML += '<pre>' + campoMinado.Tabuleiro() + '</pre>';
+
+            let cont = 0;
+            var status = campoMinado.JogoStatus();
+
+            //repete enquanto o status do jogo for diferente de 1 ou igual 2
+            do 
+            {
+                //Lê a string do jogo, cria uma matriz que representa o tabuleiro e instancia as posições
+                let stringTabuleiro = campoMinado.Tabuleiro().split(/\r\n/);
+            
+                let arr = new Array();
+                    
+                for (let i = 0; i < stringTabuleiro.length; i++) 
+                { 
+                    let arr2 = new Array();
+
+                    for(let j = 0; j < 9; j++) 
+                    {
+                        arr2.push(new Casa(i, j, stringTabuleiro[i][j]));
+                    }
+
+                    arr.push(arr2);
+                }
+
+                //seta os vizinhos de cada posição
+                Ajudantes.setVizinhosArray(arr);
+
+                //seta as casas que contém bombas, e que portanto, não podem ser abertas
+                Ajudantes.setCasasComBombasArray(arr);
+
+                //seta as casas que não contém bombas, e que portanto, serão abertas
+                Ajudantes.setCasasSemBombasArray(arr);
+
+                let qtdCasasSemBombas = Ajudantes.getQtdCasasSemBombaArray(arr);
+
+                //se a quantidade de casas sem bombas > 0, abre uma casa sem bomba
+                if(qtdCasasSemBombas > 0) {
+                    let casaSemBomba = Ajudantes.getCasaSemBombaArray(arr);
+                    campoMinado.Abrir(casaSemBomba.linha + 1, casaSemBomba.coluna + 1);
+                }
+                
+                status = campoMinado.JogoStatus();
+                if(status == 1) 
+                {
+                    document.getElementById('exibir-execucao').innerHTML += '----------- Status: Vitória!! -----------';
+                    document.getElementById('exibir-execucao').innerHTML += '<pre>' + campoMinado.Tabuleiro() + '</pre>';
+                } 
+                else if(status == 2) 
+                {
+                    document.getElementById('exibir-execucao').innerHTML += '----------- Status: Derrota -----------';
+                    document.getElementById('exibir-execucao').innerHTML += '<pre>' + campoMinado.Tabuleiro() + '</pre>';
+                } 
+                else 
+                {
+                    document.getElementById('exibir-execucao').innerHTML += '----------- Status: Jogo em Aberto -----------';
+                    document.getElementById('exibir-execucao').innerHTML += '<pre>' + campoMinado.Tabuleiro() + '</pre>';
+                }
+                
+                cont++;
+            } 
+            while(status != 1 | status == 2);
+
+        </script>
+    </body>
+</html>
